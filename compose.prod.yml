@@ -1,0 +1,7 @@
+name: <PROJECT_NAME>-prod
+
+services: {}
+
+networks:
+  app-network:
+    name: <PROJECT_NAME>_network

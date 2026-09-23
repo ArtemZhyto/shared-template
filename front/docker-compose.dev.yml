@@ -1,0 +1,23 @@
+services:
+  <PROJECT_NAME>_frontend:
+    build:
+      context: ${FRONTEND_ROOT:-.}
+      dockerfile: dockerfile
+      target: development
+    env_file:
+      - ${FRONTEND_ROOT:-.}/.env
+    environment:
+      API_URL: <INTERNAL_API_URL>
+    volumes:
+      - ${FRONTEND_ROOT:-.}:/app
+      - /app/node_modules
+      - /app/.next
+    command: npm run dev
+    ports:
+      - '<FRONTEND_PORT>:<FRONTEND_PORT>'
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: <PROJECT_NAME>_network

@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@app/*": ["./src/app/*"],
+      "@components/*": ["./src/components/*"],
+      "@components-layout/*": ["./src/components/layout/*"],
+      "@components-settings/*": ["./src/components/settings/*"],
+      "@components-shared/*": ["./src/components/shared/*"],
+      "@components-ui/*": ["./src/components/ui/*"],
+      "@config/*": ["./src/config/*"],
+      "@features/*": ["./src/features/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@i18n/*": ["./src/i18n/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@providers/*": ["./src/providers/*"],
+      "@shared-types/*": ["./src/types/*"]
+    },
+    "types": ["node"]
+  },
+  "include": [
+    "./next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": ["node_modules", ".next"]
+}

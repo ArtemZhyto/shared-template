@@ -1,0 +1,47 @@
+services:
+  <PROJECT_NAME>_<SERVICE_NAME>:
+    build:
+      context: ${BACKEND_ROOT:-.}
+      dockerfile: services/<SERVICE_NAME>/dockerfile
+    depends_on:
+      <PROJECT_NAME>_<SERVICE_NAME>_postgres:
+        condition: service_healthy
+    env_file:
+      - ${BACKEND_ROOT:-.}/services/<SERVICE_NAME>/.env
+    environment:
+      MODE: dev
+      POSTGRES_HOST: <PROJECT_NAME>_<SERVICE_NAME>_postgres
+      POSTGRES_PORT: 5432
+    volumes:
+      - ${BACKEND_ROOT:-.}/services/<SERVICE_NAME>:/app/services/<SERVICE_NAME>
+      - /app/node_modules
+    command: sh -c "npx prisma migrate deploy && npm run dev"
+    ports:
+      - '<SERVICE_PORT>:<SERVICE_PORT>'
+    networks:
+      - app-network
+
+  <PROJECT_NAME>_<SERVICE_NAME>_postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    env_file:
+      - ${BACKEND_ROOT:-.}/services/<SERVICE_NAME>/.env
+    ports:
+      - '<SERVICE_DB_PORT>:5432'
+    volumes:
+      - <PROJECT_NAME>_<SERVICE_NAME>_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    networks:
+      - app-network
+
+volumes:
+  <PROJECT_NAME>_<SERVICE_NAME>_postgres_data:
+
+networks:
+  app-network:
+    name: <PROJECT_NAME>_network

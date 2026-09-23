@@ -1,0 +1,8 @@
+**/node_modules
+**/.next
+**/build
+**/.git
+**/.github
+**/.env
+**/.env.*
+!**/.env.example

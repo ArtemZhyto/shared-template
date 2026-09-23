@@ -1,0 +1,167 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'back/**'
+      - '.github/workflows/back-ci.yml'
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'back/**'
+      - '.github/workflows/back-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  discover_services:
+    if: github.repository != 'ArtemZhyto/shared-template'
+    name: Discover backend services
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.discover.outputs.services }}
+      has_services: ${{ steps.discover.outputs.has_services }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Discover services
+        id: discover
+        working-directory: back
+        shell: bash
+        run: |
+          services="$({ find services -mindepth 2 -maxdepth 2 -type f -name package.json -print 2>/dev/null || true; } \
+            | sed -E 's#^services/([^/]+)/package\.json$#\1#' \
+            | sort \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')"
+
+          echo "services=$services" >> "$GITHUB_OUTPUT"
+
+          if [ "$services" = '[]' ]; then
+            echo 'has_services=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'has_services=true' >> "$GITHUB_OUTPUT"
+          fi
+
+  lint:
+    name: Lint backend
+    needs: discover_services
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: back
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Lint
+        run: npm run lint
+
+  service:
+    name: Test ${{ matrix.service }}
+    needs:
+      - discover_services
+      - lint
+    if: needs.discover_services.outputs.has_services == 'true'
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.discover_services.outputs.services) }}
+
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: service_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d service_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      CI: 'true'
+      MODE: dev
+      DOMAIN: localhost
+      SERVICE_PORT: 5000
+      FRONTEND_URL: http://localhost:3000
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/service_test
+      ACCESS_SECRET: ci-access-secret
+      REFRESH_SECRET: ci-refresh-secret
+      COOKIES_SECRET: ci-cookies-secret
+      ACCESS_AGE: 900000
+      REFRESH_AGE: 2592000000
+      EMAIL_VERIFICATION_EXPIRES_HOURS: 24
+      EMAIL_VERIFICATION_RESEND_COOLDOWN_SECONDS: 60
+      PASSWORD_RESET_TOKEN_TTL_MINUTES: 30
+      PASSWORD_RESET_RESEND_COOLDOWN_SECONDS: 60
+
+    defaults:
+      run:
+        working-directory: back/services/${{ matrix.service }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install backend dependencies
+        working-directory: back
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Generate Prisma Client
+        run: |
+          if [ -f prisma/schema.prisma ]; then
+            npx prisma generate
+          fi
+
+      - name: Apply database migrations
+        run: |
+          if [ -d prisma/migrations ]; then
+            npx prisma migrate deploy
+          fi
+
+      - name: Run unit tests
+        run: npm test
+
+      - name: Run integration tests
+        run: npm run --if-present test:integration
+
+      - name: Build service
+        run: npm run build

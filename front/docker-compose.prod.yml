@@ -1,0 +1,23 @@
+services:
+  <PROJECT_NAME>_frontend:
+    build:
+      context: ${FRONTEND_ROOT:-.}
+      dockerfile: dockerfile
+      target: production
+      args:
+        MODE: prod
+        NEXT_PUBLIC_SITE: <PUBLIC_FRONTEND_URL>
+        NEXT_PUBLIC_API_URL: <PUBLIC_API_URL>
+    restart: unless-stopped
+    env_file:
+      - ${FRONTEND_ROOT:-.}/.env.prod
+    environment:
+      API_URL: <INTERNAL_API_URL>
+    ports:
+      - '<FRONTEND_PORT>:<FRONTEND_PORT>'
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    name: <PROJECT_NAME>_network

@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "noEmit": false,
+    "strict": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./node_modules/@types", "../../node_modules/@types"],
+    "paths": {
+      "@configs/*": ["./src/configs/*"],
+      "@controllers/*": ["./src/controllers/*"],
+      "@errors/*": ["./src/errors/*"],
+      "@helpers/*": ["./src/helpers/*"],
+      "@middlewares/*": ["./src/middlewares/*"],
+      "@routes/*": ["./src/routes/*"],
+      "@services/*": ["./src/services/*"],
+      "@sockets/*": ["./src/sockets/*"],
+      "@validation/*": ["./src/validation/*"],
+      "@workers/*": ["./src/workers/*"],
+      "@src/*": ["./src/*"]
+    },
+    "types": ["node"]
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "tests"]
+}

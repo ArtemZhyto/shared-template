@@ -1,0 +1,17 @@
+{
+  "name": "<PROJECT_NAME>",
+  "description": "<PROJECT_DESCRIPTION>",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/compose.mjs dev up --build",
+    "dev:down": "node scripts/compose.mjs dev down --remove-orphans",
+    "dev:logs": "node scripts/compose.mjs dev logs -f",
+    "prod": "node scripts/compose.mjs prod up -d --build",
+    "prod:down": "node scripts/compose.mjs prod down --remove-orphans",
+    "prod:logs": "node scripts/compose.mjs prod logs -f",
+    "lint": "npm --prefix front run lint && npm --prefix back run lint",
+    "test": "npm --prefix front test && npm --prefix back test",
+    "build": "npm --prefix front run build && npm --prefix back run build"
+  }
+}
