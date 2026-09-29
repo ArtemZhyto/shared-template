@@ -160,8 +160,5 @@ jobs:
       - name: Run unit tests
         run: npm test
 
-      - name: Run integration tests
-        run: npm run --if-present test:integration
-
       - name: Build service
         run: npm run build

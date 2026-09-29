@@ -36,7 +36,7 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        run: npm test -- --runInBand
+        run: npm test
 
       - name: Build
         run: npm run build

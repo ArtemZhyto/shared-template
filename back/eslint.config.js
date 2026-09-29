@@ -47,12 +47,7 @@ export default tseslint.config(
   },
 
   {
-    files: [
-      `services/**/jest.config.js`,
-      `services/**/jest.integration.config.js`,
-      `services/**/scripts/**/*.mjs`,
-      `scripts/**/*.mjs`,
-    ],
+    files: [`services/**/scripts/**/*.mjs`, `scripts/**/*.mjs`],
 
     rules: {
       [`@typescript-eslint/no-require-imports`]: `off`,
